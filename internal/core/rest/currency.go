@@ -1,8 +1,8 @@
 package rest
 
 const (
-	UAH = "uah"
-	EUR = "eur"
-	USD = "usd"
-	JPY = "jpy"
+	UAH = "UAH"
+	EUR = "EUR"
+	USD = "USD"
+	JPY = "JPY"
 )

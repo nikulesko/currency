@@ -3,6 +3,7 @@ package main
 import (
 	"currency/internal/transport/rest/router"
 	//"currency/internal/core/rest"
+
 	//"fmt"
 	//"time"
 
@@ -11,11 +12,11 @@ import (
 	//"github.com/madflojo/tasks"
 )
 
-func main()  {
+func main() {
 	r := router.New()
 
 	r.Logger.Fatal(r.Start("127.0.0.1:8585"))
-	
+
 	//currencyPuller()
 }
 

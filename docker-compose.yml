@@ -1,0 +1,17 @@
+version: '3.1'
+ 
+services:
+  db:
+    image: mysql
+    container_name: db_mysql
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: 'currency_db'
+      MYSQL_USER: 'toor'
+      MYSQL_PASSWORD: 'toor'
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./schema/create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql

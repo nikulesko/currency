@@ -1,11 +1,32 @@
 package rest
 
-type HistoricalRates struct {
-	Date  string
-	Base  string
-	Rates map[string]string
+type LatestRates struct {
+	Motd    AddMessage
+	Success bool
+	Base    string
+	Date    string
+	Rates   map[string]float64
 }
 
-func EmptyHistoricalRates() HistoricalRates {
-	return HistoricalRates{"", "", nil}
+func (l *LatestRates) Clean() CleanLatestRates {
+	return CleanLatestRates{
+		l.Base,
+		l.Date,
+		l.Rates,
+	}
+}
+
+type CleanLatestRates struct {
+	Base  string
+	Date  string
+	Rates map[string]float64
+}
+
+type AddMessage struct {
+	Msg string
+	Url string
+}
+
+func EmptyLatestRates() CleanLatestRates {
+	return CleanLatestRates{"", "", nil}
 }
