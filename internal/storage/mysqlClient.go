@@ -1,10 +1,10 @@
 package storage
 
 import (
-	"currency/internal/core/rest"
-	
+	"currency/internal/core"
+
 	"database/sql"
-	"fmt"
+	"log"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -12,66 +12,70 @@ import (
 var db *sql.DB
 
 var cfg mysql.Config = mysql.Config{
-	User:   "toor",
-	Passwd: "toor",
-	Net:    "tcp",
-	Addr:   "127.0.0.1:3306",
-	DBName: "currency_db",
+	User:                 "toor",
+	Passwd:               "toor",
+	Net:                  "tcp",
+	Addr:                 "127.0.0.1:3306",
+	DBName:               "currency_db",
 	AllowNativePasswords: true,
 }
 
-func AddRecord(record rest.CleanLatestRates) (bool, error) {
+func AddRecord(record core.CleanLatestRates) (bool, error) {
 	if !ping() {
 		panic("DB connection exception")
 	}
 
 	result, err := db.Exec("INSERT INTO currency (based, date) VALUES (?, ?)", record.Base, record.Date)
 	if err != nil {
-        panic(err.Error())
-    }
+		log.Fatal(err)
+		panic(err.Error())
+	}
 	id, err := result.LastInsertId()
-    if err != nil {
-        panic(err.Error())
-    }
+	if err != nil {
+		log.Fatal(err)
+		panic(err.Error())
+	}
 
-	result, err = db.Exec("INSERT INTO rates (currency, rate, currency_id) VALUES (?, ?, ?), (?, ?, ?), (?, ?, ?)", 
-	rest.UAH, record.Rates[rest.UAH], id,
-	rest.EUR, record.Rates[rest.EUR], id,
-	rest.JPY, record.Rates[rest.JPY], id,
+	result, err = db.Exec("INSERT INTO rates (currency, rate, currency_id) VALUES (?, ?, ?), (?, ?, ?), (?, ?, ?)",
+		core.UAH, record.Rates[core.UAH], id,
+		core.EUR, record.Rates[core.EUR], id,
+		core.JPY, record.Rates[core.JPY], id,
 	)
 	if err != nil {
-        panic(err.Error())
-    }
+		log.Fatal(err)
+		panic(err.Error())
+	}
 	_, err = result.LastInsertId()
-    if err != nil {
-        panic(err.Error())
-    }
+	if err != nil {
+		log.Fatal(err)
+		panic(err.Error())
+	}
 
 	return true, nil
 }
 
-func GetRecordByDate(date string) (rest.CleanLatestRates, error) {
+func GetRecordByDate(date string) (core.CleanLatestRates, error) {
 	if !ping() {
 		panic("DB connection exception")
 	}
 
-	var latestRates rest.CleanLatestRates
+	var latestRates core.CleanLatestRates
 	latestRates.Rates = make(map[string]float64)
 
 	var currencyId int32
 
 	currency := db.QueryRow("SELECT * FROM currency WHERE date = ?", date)
-    if err := currency.Scan(&currencyId, &latestRates.Base, &latestRates.Date); err != nil {
-        if err == sql.ErrNoRows {
-            fmt.Println(err.Error())
+	if err := currency.Scan(&currencyId, &latestRates.Base, &latestRates.Date); err != nil {
+		if err == sql.ErrNoRows {
+			log.Println(err)
 			return latestRates, err
-        }
-        panic(err.Error())
-    }
+		}
+		log.Println(err)
+	}
 
 	rates, err := db.Query("SELECT currency,rate FROM rates WHERE currency_id = ?", currencyId)
 	if err != nil {
-		panic(err.Error())
+		log.Println(err)
 	}
 	defer rates.Close()
 
@@ -79,25 +83,25 @@ func GetRecordByDate(date string) (rest.CleanLatestRates, error) {
 		var key string
 		var value float64
 		if err := rates.Scan(&key, &value); err != nil {
-            panic(err.Error())
-        }
-		latestRates.Rates[key]=value
+			log.Println(err)
+		}
+		latestRates.Rates[key] = value
 	}
 
 	return latestRates, nil
 }
 
 func ping() bool {
-    var err error
-    db, err = sql.Open("mysql", cfg.FormatDSN())
-    if err != nil {
-        fmt.Println(err)
-    }
+	var err error
+	db, err = sql.Open("mysql", cfg.FormatDSN())
+	if err != nil {
+		log.Println(err)
+	}
 
-    pingErr := db.Ping()
-    if pingErr != nil {
-        fmt.Println(err)
-    }
-    
+	pingErr := db.Ping()
+	if pingErr != nil {
+		log.Println(err)
+	}
+
 	return true
 }

@@ -1,4 +1,4 @@
-package rest
+package core
 
 type LatestRates struct {
 	Motd    AddMessage

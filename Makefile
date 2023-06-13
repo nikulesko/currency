@@ -2,7 +2,8 @@ build:
 	go build -o cmd/main main.go
 
 run:
-	docker-compose up && go run main.go
+	docker-compose up -d
+	go run cmd/main.go
 
-fmt:
+format:
 	@gofmt -l -w .

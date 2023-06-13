@@ -5,3 +5,6 @@ returns history data based on USD by date
 
 returns current data based on USD 
     /currency/latest
+
+
+Use make run to execute the application with a db in a docker container.
